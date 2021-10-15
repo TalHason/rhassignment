@@ -71,14 +71,20 @@
           username: talhason
           password: @3-Z6.dW~vcmt2#
           email: talhason3105@gmail.com
+      - name: Docker Login
+        docker_login:
+          registry: https://hub.docker.com/repository/docker/talhason/rhassignment
+          username: talhason
+          debug: true
+          password: "@3-Z6.dW~vcmt2#"    
       - name: start the flask server docker image
-          docker_container:
-            image: flask-server:latest 
-            name: nginx
-            state: started
-            auto_remove: true
-            ports:
-              - "5000:5000"
+        docker_container:
+          image: flask-server:latest 
+          name: nginx
+          state: started
+          auto_remove: true
+          ports:
+            - "5000:5000"
 - hosts: haproxy
   become: true
   tasks:
