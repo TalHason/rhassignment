@@ -84,6 +84,19 @@
          name: haproxy
          state: latest
       - name: get haproxy conf file from git
+          get_url:
+            url: https://github.com/TalHason/rhassignment/blob/main/haproxy/haproxy.cfg
+            dest: /tmp/
+            mode: '0640'
+      - name: copy new haproxy conf to server etc folder
+        ansible.builtin.copy:
+          src: /tmp/haproxy.cfg
+          dest: /etc/haproxy/
+          force: yes
+      - name: start the haProxy Deamon
+        ansible.builtin.service:
+          name: haproxy
+          state: started
 
 
 

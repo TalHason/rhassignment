@@ -1,0 +1,8 @@
+---
+- name: deploy flask server
+  hosts: all
+  become: yes
+  become_method: sudo 
+
+  roles:
+    - app-deploy
