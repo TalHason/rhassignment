@@ -14,12 +14,12 @@
 
           - name: install git epel python docker
             yum:
-                    name:
-                            - git
-                            - amazon-linux-extras
-                            - python3.8
-                            - docker  
-                    state: latest
+              name:
+                - git
+                - amazon-linux-extras
+                - python3.8
+                - docker  
+              state: latest
 
           - name: reboot servers after update
             reboot:
@@ -39,8 +39,8 @@
           sudo_user: ec2-user   
       - name: build container image
         docker_image:
-        name: Falsk-server:latest
-        build:
+        name: flask-server:latest
+        build: 
           path: /home/ec2-user/web-p/Docker
           source: build
         state: present
@@ -55,6 +55,36 @@
           repository: talhason/rhassignment:flaskserver
           push: yes
           source: local
+
+- hosts: web
+  become: true
+  tasks:
+      - name: start docker service demon
+        ansible.builtin.service:
+          name: docker
+          state: started
+      - name: Log into DockerHub
+        docker_login:
+          username: talhason
+          password: @3-Z6.dW~vcmt2#
+          email: talhason3105@gmail.com
+      - name: start the flask server docker image
+          docker_container:
+            image: flask-server:latest 
+            name: nginx
+            state: started
+            auto_remove: true
+            ports:
+              - "5000:5000"
+- hosts: haproxy
+  become: true
+  tasks:
+      - name: install HAproxy
+        yum:
+         name: haproxy
+         state: latest
+      - name: get haproxy conf file from git
+
 
 
 
