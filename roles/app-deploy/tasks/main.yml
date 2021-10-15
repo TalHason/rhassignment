@@ -38,7 +38,8 @@
           ansible.builtin.git:
             repo: 'git@github.com:TalHason/rhassignment.git main'
             dest: /home/ec2-user/web-p/
-          sudo_user: ec2-user   
+            single_branch: yes
+            version: main   
       - name: build container image
         docker_image:
         name: flask-server:latest
