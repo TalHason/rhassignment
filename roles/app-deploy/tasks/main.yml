@@ -30,11 +30,13 @@
   become: true
   tasks:
       - name: Create folder for Git repo
-          file:
-            path: /home/ec2-user/web-p      
+        ansible.builtin.file:
+            path: /home/ec2-user/web-p
+            state: directory
+            mode: '0755'      
       - name: Get stuff from git
-          git:
-            repo: git@github.com:TalHason/rhassignment.git main
+          ansible.builtin.git:
+            repo: 'git@github.com:TalHason/rhassignment.git main'
             dest: /home/ec2-user/web-p/
           sudo_user: ec2-user   
       - name: build container image
