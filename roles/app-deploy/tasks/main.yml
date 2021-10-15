@@ -48,8 +48,8 @@
           source: build
       - name: Log into DockerHub
         docker_login:
-          username: talhason
-          password: @3-Z6.dW~vcmt2#
+          username: 'talhason'
+          password: '@3-Z6.dW~vcmt2#'
           email: talhason3105@gmail.com
       - name: push image to docker hub repo
         community.docker.docker_image:
