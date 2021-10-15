@@ -1,0 +1,61 @@
+---
+#install env programs
+- hosts : all
+  become: true
+  tasks:
+          - name: update OS
+            yum:
+              name: '*'
+              state: latest
+            register: updated
+
+          - name: enable python '3' repo
+            command : amazon-linux-extras enable python3.8
+
+          - name: install git epel python docker
+            yum:
+                    name:
+                            - git
+                            - amazon-linux-extras
+                            - python3.8
+                            - docker  
+                    state: latest
+
+          - name: reboot servers after update
+            reboot:
+              reboot_timeout: 3600
+            when: updated.changed
+
+- hosts: ansible
+  become: true
+  tasks:
+      - name: Create folder for Git repo
+          file:
+            path: /home/ec2-user/web-p      
+      - name: Get stuff from git
+          git:
+            repo: git@github.com:TalHason/rhassignment.git main
+            dest: /home/ec2-user/web-p/
+          sudo_user: ec2-user   
+      - name: build container image
+        docker_image:
+        name: Falsk-server:latest
+        build:
+          path: /home/ec2-user/web-p/Docker
+          source: build
+        state: present
+      - name: Log into DockerHub
+        docker_login:
+          username: talhason
+          password: @3-Z6.dW~vcmt2#
+          email: talhason3105@gmail.com
+      - name: push image to docker hub repo
+        community.docker.docker_image:
+          name: flask-server:latest
+          repository: talhason/rhassignment:flaskserver
+          push: yes
+          source: local
+
+
+
+
