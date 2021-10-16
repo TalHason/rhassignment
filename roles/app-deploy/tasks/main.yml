@@ -1,30 +1,25 @@
 ---
-#install env programs
-- hosts : all
-  become: true
+- name: install flask cluster
+  hosts: all
+  become: true 
   tasks:
-          - name: update OS
-            yum:
-              name: '*'
-              state: latest
-            register: updated
-
-          - name: enable python '3' repo
-            command : amazon-linux-extras enable python3.8
-
-          - name: install git epel python docker
-            yum:
-              name:
-                - git
-                - amazon-linux-extras
-                - python3.8
-                - docker  
-              state: latest
-
-          - name: reboot servers after update
-            reboot:
-              reboot_timeout: 3600
-            when: updated.changed
+      - name: update OS
+        yum:
+          name: '*'
+          state: latest
+      - name: enable python '3' repo
+        command : amazon-linux-extras enable python3.8
+      - name: install git epel python docker
+        yum:
+          name:
+            - git
+            - amazon-linux-extras
+            - python3.8
+            - docker
+            - python-pip 
+          state: latest
+      - name: install python docker moudle
+        shell: pip install docker --user 
 
 - hosts: ansible
   become: true
@@ -34,24 +29,25 @@
             path: /home/ec2-user/web-p
             state: directory
             mode: '0755'      
-      - name: Get stuff from git
-        shell: git pull 'git@github.com:TalHason/rhassignment.git main'
+      - name: git init the folder
+        shell: git init
         args:
           chdir: /home/ec2-user/web-p
-           
-             
+      - name: Get stuff from git - ansible
+        shell: git pull https://github.com/TalHason/rhassignment.git 
+        args:
+          chdir: /home/ec2-user/web-p        
       - name: build container image
-        community.docker.docker_image:
-        name: flask-server:latest
-        build: 
-          path: /home/ec2-user/web-p/Docker
+        docker_image:
+          name: flask-server:latest
+          build: 
+            path: /home/ec2-user/web-p/Docker
           source: build
       - name: Docker Login
         docker_login:
-          registry: https://hub.docker.com/repository/docker/talhason/rhassignment
           username: talhason
-          debug: true
-          password: "@3-Z6.dW~vcmt2#"   
+          password: 9e38122f-247b-4d59-8e80-fc0babc354d9   
+          email: talhason3105@gmail.com
       - name: push image to docker hub repo
         community.docker.docker_image:
           name: flask-server:latest
@@ -68,18 +64,18 @@
           state: started
       - name: Docker Login
         docker_login:
-          registry: https://hub.docker.com/repository/docker/talhason/rhassignment
           username: talhason
-          debug: true
-          password: "@3-Z6.dW~vcmt2#"    
+          password: 9e38122f-247b-4d59-8e80-fc0babc354d9
+          email: talhason3105@gmail.com   
       - name: start the flask server docker image
         docker_container:
           image: flask-server:latest 
-          name: nginx
+          name: flask-server
           state: started
           auto_remove: true
           ports:
             - "5000:5000"
+
 - hosts: haproxy
   become: true
   tasks:
@@ -87,18 +83,23 @@
         yum:
          name: haproxy
          state: latest
-      - name: get haproxy conf file from git
-          get_url:
-            url: https://github.com/TalHason/rhassignment/blob/main/haproxy/haproxy.cfg
-            dest: /tmp/
-            mode: '0640'
+         #      - name: get haproxy conf file from git
+         #          get_url:
+         #            url: https://github.com/TalHason/rhassignment/blob/main/haproxy/haproxy.cfg
+         #            dest: /home/ec2-uesr/haproxy.cfg
+         #            mode: 0777
+      - name: Get Conf File from repo
+        shell: wget https://github.com/TalHason/rhassignment/blob/main/haproxy/haproxy.cfg
+        args:
+          chdir: /home/ec2-user/
+
       - name: copy new haproxy conf to server etc folder
-        ansible.builtin.copy:
-          src: /tmp/haproxy.cfg
+        copy:
+          src: /home/ec2-uesr/haproxy.cfg
           dest: /etc/haproxy/
           force: yes
       - name: start the haProxy Deamon
-        ansible.builtin.service:
+        service:
           name: haproxy
           state: started
 
