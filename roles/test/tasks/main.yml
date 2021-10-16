@@ -1,0 +1,26 @@
+---
+- name: test load Balancer activity 1st time
+  uri:
+    url: http://ec2-52-57-91-202.eu-central-1.compute.amazonaws.com/
+    return_content: yes
+  register: web1
+- name: Show the host names 1st test
+  debug:
+       var: web1
+- name: test load Balancer activity 2nd time
+  uri:
+    url: http://ec2-52-57-91-202.eu-central-1.compute.amazonaws.com/
+    return_content: yes
+  register: web2
+- name: Show the host names 2nd test
+  debug:
+       var: web2
+- name: test load Balancer activity 3rd time
+  uri:
+    url: http://ec2-52-57-91-202.eu-central-1.compute.amazonaws.com/
+    return_content: yes
+  register: web3
+- name: Show the host names 3rd test
+  debug:
+       var: web3
+

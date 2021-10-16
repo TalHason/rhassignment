@@ -27,4 +27,9 @@
   roles:
     - lbserver
 
+- name: test the load balancer round robin
+  hosts: ansible
+  become: yes
 
+  roles:
+    - test
