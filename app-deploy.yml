@@ -1,8 +1,30 @@
 ---
-- name: deploy flask server
+- name: install updates and needed apllication 
   hosts: all
   become: yes
-  become_method: sudo 
 
   roles:
-    - app-deploy
+    - infra
+
+- name: pull git and build a docker image for flask cluster
+  hosts: ansible
+  become: yes
+
+  roles:
+    - docker
+
+- name: deploy flask containers on web server
+  hosts: web
+  become: yes
+  
+  roles:
+    - web
+
+- name: deploy HAproxy server with new conf
+  hosts: haproxy
+  become: yes
+
+  roles:
+    - lbserver
+
+
