@@ -1,0 +1,32 @@
+---
+- name: install HAproxy
+  yum:
+   name: haproxy
+   state: latest
+- name: Create folder for Git repo
+  file:
+    path: /home/ec2-user/web-p
+    state: directory
+    mode: '0755'
+- name: do a git init
+  shell: git init
+  args:
+    chdir: /home/ec2-user/web-p
+- name: Get stuff from git - ansible
+  shell: git pull https://github.com/TalHason/rhassignment.git
+  args:
+    chdir: /home/ec2-user/web-p
+- name: copy new haproxy conf to server etc folder
+  copy:
+    src: /home/ec2-user/web-p/haproxy/haproxy.cfg
+    dest: /etc/haproxy/
+    force: yes
+- name: Create states folder
+  file:
+    path: /run/haproxy/
+    state: directory
+    mode: '0777'
+- name: start the haProxy Deamon
+  service:
+    name: haproxy
+    state: restarted

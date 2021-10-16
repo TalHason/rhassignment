@@ -1,0 +1,32 @@
+---
+- name: Create folder for Git repo
+  ansible.builtin.file:
+      path: /home/ec2-user/web-p
+      state: directory
+      mode: '0755'
+- name: git init the folder
+  shell: git init
+  args:
+    chdir: /home/ec2-user/web-p
+- name: Get stuff from git - ansible
+  shell: git pull https://github.com/TalHason/rhassignment.git
+  args:
+    chdir: /home/ec2-user/web-p
+- name: build container image
+  docker_image:
+    name: flask-server:latest
+    build:
+      path: /home/ec2-user/web-p/Docker
+    source: build
+- name: Docker Login
+  docker_login:
+    username: talhason
+    password: 9e38122f-247b-4d59-8e80-fc0babc354d9
+    email: talhason3105@gmail.com
+- name: push image to docker hub repo
+  community.docker.docker_image:
+    name: flask-server:latest
+    repository: talhason/rhassignment:flaskserver
+    push: yes
+    source: local
+

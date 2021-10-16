@@ -1,0 +1,27 @@
+---
+- name: start docker service demon
+  ansible.builtin.service:
+    name: docker
+    state: started
+- name: Docker Login
+  docker_login:
+    username: talhason
+    password: 9e38122f-247b-4d59-8e80-fc0babc354d9
+    email: talhason3105@gmail.com
+- name: Get running containers
+  docker_host_info:
+    containers: yes
+  register: docker_info
+- name: Stop running containers
+  docker_container:
+    name: "{{ item }}"
+    state: stopped
+  loop: "{{ docker_info.containers | map(attribute='Id') | list }}"
+- name: start the flask server docker image
+  docker_container:
+    image: talhason/rhassignment:flaskserver
+    name: flask-server
+    state: started
+    auto_remove: true
+    ports:
+      - "5000:5000"

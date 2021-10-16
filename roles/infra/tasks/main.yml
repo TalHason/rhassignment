@@ -1,0 +1,18 @@
+---
+- name: update OS
+  yum:
+    name: '*'
+    state: latest
+- name: enable python '3' repo
+  command : amazon-linux-extras enable python3.8
+- name: install git epel python docker
+  yum:
+    name:
+      - git
+      - amazon-linux-extras
+      - python3.8
+      - docker
+      - python-pip 
+    state: latest
+- name: install python docker moudle
+  shell: pip install docker --user 
