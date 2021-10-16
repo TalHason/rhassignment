@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def return_hostname():
-    return "This is app served from {} to {}".format(socket.gethostname(), request.remote_addr)
+    return "This is app served from {} to you".format(socket.gethostname())
 
 
 if __name__ == "__main__":
