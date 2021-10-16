@@ -66,11 +66,6 @@
         ansible.builtin.service:
           name: docker
           state: started
-      - name: Log into DockerHub
-        docker_login:
-          username: talhason
-          password: @3-Z6.dW~vcmt2#
-          email: talhason3105@gmail.com
       - name: Docker Login
         docker_login:
           registry: https://hub.docker.com/repository/docker/talhason/rhassignment
