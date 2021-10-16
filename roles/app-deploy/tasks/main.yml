@@ -66,16 +66,24 @@
         docker_login:
           username: talhason
           password: 9e38122f-247b-4d59-8e80-fc0babc354d9
-          email: talhason3105@gmail.com   
+          email: talhason3105@gmail.com
+      - name: Get running containers
+        docker_host_info:
+          containers: yes
+        register: docker_info
+      - name: Stop running containers
+        docker_container:
+          name: "{{ item }}"
+          state: stopped
+        loop: "{{ docker_info.containers | map(attribute='Id') | list }}"
       - name: start the flask server docker image
         docker_container:
-          image: flask-server:latest 
+          image: talhason/rhassignment:flaskserver 
           name: flask-server
           state: started
           auto_remove: true
           ports:
             - "5000:5000"
-
 - hosts: haproxy
   become: true
   tasks:
@@ -83,25 +91,33 @@
         yum:
          name: haproxy
          state: latest
-         #      - name: get haproxy conf file from git
-         #          get_url:
-         #            url: https://github.com/TalHason/rhassignment/blob/main/haproxy/haproxy.cfg
-         #            dest: /home/ec2-uesr/haproxy.cfg
-         #            mode: 0777
-      - name: Get Conf File from repo
-        shell: wget https://github.com/TalHason/rhassignment/blob/main/haproxy/haproxy.cfg
+      - name: Create folder for Git repo
+        file:
+          path: /home/ec2-user/web-p
+          state: directory
+          mode: '0755'      
+      - name: do a git init
+        shell: git init
         args:
-          chdir: /home/ec2-user/
-
+          chdir: /home/ec2-user/web-p
+      - name: Get stuff from git - ansible
+        shell: git pull https://github.com/TalHason/rhassignment.git 
+        args:
+          chdir: /home/ec2-user/web-p        
       - name: copy new haproxy conf to server etc folder
         copy:
-          src: /home/ec2-uesr/haproxy.cfg
+          src: /home/ec2-user/web-p/haproxy/haproxy.cfg
           dest: /etc/haproxy/
           force: yes
+      - name: Create states folder
+        file:
+          path: /run/haproxy/
+          state: directory
+          mode: '0777'
       - name: start the haProxy Deamon
         service:
           name: haproxy
-          state: started
+          state: restarted
 
 
 
