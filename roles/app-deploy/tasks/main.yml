@@ -1,6 +1,5 @@
 ---
-- name: install flask cluster
-  hosts: all
+- hosts: all
   become: true 
   tasks:
       - name: update OS
